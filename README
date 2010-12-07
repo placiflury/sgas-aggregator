@@ -1,0 +1,9 @@
+Module for aggregating SGAS data into a set of custom aggregates for the SMSCG
+Portal.
+
+Acknowledgements:
+------------------
+
+- Henrik Thostrup Jensen for decoupling the SGAS LUTS database and the database
+  that holds the aggregates.  
+

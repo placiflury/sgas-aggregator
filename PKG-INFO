@@ -1,0 +1,17 @@
+Metadata-Version: 1.0
+Name: sgas_aggregator
+Version: 0.3.0
+Summary: An aggregator of the SGAS accouting records.
+Home-page: http://www.smscg.ch
+Author: Placi Flury
+Author-email: grid@switch.ch
+License: BSD. Copyright (c) 2008, SMSCG - Swiss Multi Science Computing Grid. All rights reserved.
+Download-URL: https://subversion.switch.ch/svn/smscg/smscg/
+Description: 
+            This module provides a daemon that aggregates SGAS accounting records
+            as collected by the SGAS LUTS into a set of aggregates. The aggregates
+            are stored in database tables that (should) allow retrieval for several
+            representations of the data wihtout need for being further processed 
+            (like usage records summed up etc.).
+            
+Platform: Linux

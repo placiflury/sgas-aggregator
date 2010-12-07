@@ -1,0 +1,199 @@
+#!/usr/bin/python
+##############################################################################
+# Copyright (c) 2008 - 2011, SMSCG - Swiss Multi Science Computing Grid.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#    * Neither the name of SMSCG nor the names of its contributors may be
+#      used to endorse or promote products derived from this software without
+#      specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+###############################################################################
+"""
+A daemon that aggregates accouting records stored by SGAS (in postgresql db),
+into a variety of tables that can be used to display various 'views'
+without need for processing the original accounting records.
+
+"""
+__author__ = "Placi Flury grid@switch.ch"
+__copyright__ = "Copyright 2010, SMSCG an AAA/SWITCH project"
+__date__ = "09.08.2010"
+__version__ = "0.1.0"
+
+from optparse import OptionParser
+from sqlalchemy import engine_from_config
+import logging, logging.config
+
+from sgasaggregator import dbinit, daemon, uraggregator
+from sgasaggregator.utils import init_config, config_parser
+
+from sgasaggregator.sgas import session as sgas_session
+from sgasaggregator.sgascache import session as sgascache_session
+
+import sys, time
+
+
+
+class UrAggregatorDaemon(daemon.Daemon):
+    """ SGAS Usage Records Aggregator. """
+
+
+    def __init__(self, pidfile="/var/run/sgas_aggregator.pid"):
+        self.log = logging.getLogger(__name__)
+        daemon.Daemon.__init__(self, pidfile)
+        self.options = None
+        self.__get_options()
+
+        try:
+            sgas_engine = engine_from_config(config_parser.config.get(),'sqlalchemy_sgas.')
+            dbinit.init_model(sgas_session, sgas_engine)
+            self.log.info("Session object to SGAS database created")
+        except Exception, ex:
+            self.log.error("Failed to create session to SGAS database: %r", ex)
+
+        try:
+            sgascache_engine = engine_from_config(config_parser.config.get(),'sqlalchemy_sgascache.')
+            dbinit.init_model(sgascache_session, sgascache_engine)
+            self.log.info("Session object to SGAS cache database created")
+        except Exception, ex:
+            self.log.error("Failed to create session to SGAS cache database: %r", ex)
+
+        res = config_parser.config.get('resolution')
+        if not res or not res.isdigit():
+            self.log.info("Either no resolution defined or not an integer. Setting it to 86400 secs")
+            self.resolution = 86400
+        else:
+            self.resolution = int(res)
+
+        per = config_parser.config.get('periodicity')
+        if not per or not per.isdigit():
+            self.log.info("Either no periodicity defined or not an integer. Setting it to 900 secs")
+            self.periodicity = 900
+        else:
+            self.periodicity = int(per)
+
+
+        self.factors = list()
+        factors_ = config_parser.config.get('factors')
+        if factors_:
+            l = factors_.split(',')
+            for f in l:
+                self.factors.append(int(f))
+
+        self.log.info("Using periodicity factors %r" % self.factors)
+
+        rdb = config_parser.config.get('refresh_days_back')
+        if not rdb or not rdb.isdigit():
+            self.log.info("Either no refresh_days_back defined or not an integer. Setting it to 28 days")
+            self.refresh_days_back = 28
+        else:
+            self.refresh_days_back = int(rdb)
+
+        self.log.debug("Initialization finished")
+
+    def __get_options(self):
+        usage = "usage: %prog [options] start|stop|restart \n\nDo %prog -h for more help."
+
+        parser = OptionParser(usage = usage, version = "%prog " + __version__)
+
+        parser.add_option("" , "--config_file", action = "store",
+            dest = "config_file", type = "string",
+            default = "/opt/smscg/sgasaggregator/etc/config.ini",
+            help = "File holding the smscg specific configuration for this site (default=%default)")
+
+        (options, args) = parser.parse_args()
+        self.log.debug("Invocation with args: %r and options: %r" % (args, options))
+
+        self.options = options
+
+        # checking options and parameters.
+        if (not args):
+            parser.error("Argument is missing.")
+
+        if (args[0] not in ('start', 'stop', 'restart')):
+            parser.error("Uknown argument")
+        self.command = args[0]
+
+        # initialize configuration
+        try:
+            init_config(options.config_file)
+        except Exception, e:
+            self.log.error("While reading configuration %s got: %r" % (options.config_file, e))
+            sys.exit(-1)
+
+        # check whether mandatory settings of configuration are there
+
+        periodicity = config_parser.config.get('periodicity')
+        if not periodicity:
+            self.log.info("No periodicity option defined in %s. Setting it to default (15 minutes)"
+                    % (options.config_file))
+            self.periodicity = 60 * 15
+        else:
+            try:
+                self.periodicity = int(periodicity)
+            except Exception, e:
+                self.log.error("Could not set periodicity to '%s'. Please check option in %s"
+                    % (periodicity,options.config_file))
+                sys.exit(-1)
+
+
+    def __del__(self):
+        pass
+
+    def change_state(self):
+        """ Changing daemon state. """
+        if self.command == 'start':
+            self.log.info("starting daemon...")
+            daemon.start()
+            self.log.info("started...")
+        elif self.command == 'stop':
+            self.log.info("stopping daemon...")
+            daemon.stop()
+            self.log.info("stopped")
+        elif self.command == 'restart':
+            self.log.info("restarting daemon...")
+            daemon.restart()
+            self.log.info("restarted")
+
+
+    def run(self):
+        aggregator = uraggregator.UrAggregator(self.refresh_days_back)
+        while True:
+            timestamp = time.time()
+            self.log.debug("Starting aggregation")
+            try:
+                aggregator.main(self.resolution, self.factors)
+            except Exception, e:
+                self.log.exception(e)
+            self.log.debug("Aggregation finished.")
+            proctime = time.time() - timestamp
+            if proctime > self.periodicity:
+                continue
+            else:
+                time.sleep(self.periodicity - proctime)
+
+if __name__ == "__main__":
+
+    logging.config.fileConfig("/opt/smscg/sgasaggregator/etc/logging.conf")
+    daemon = UrAggregatorDaemon()
+    daemon.change_state()
+
+
