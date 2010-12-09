@@ -45,7 +45,7 @@ def get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
         resolution: resolution of (aggregated) jobs. 
     """
     start_t_epoch = start_t_epoch - (start_t_epoch % resolution) 
-    end_t_epoch =  end_t_epoch - (end_t_epoch % resolution) + resolution - 1
+    end_t_epoch =  end_t_epoch - (end_t_epoch % resolution) + resolution
     
     if resolution == 0:
         log.warn("Got 0 resolution, can't fulfill request.")
@@ -53,7 +53,7 @@ def get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
 
     return sgascache_session.Session.query(ag_schema.User).filter(and_(
         ag_schema.User.t_epoch >= start_t_epoch,
-        ag_schema.User.t_epoch < end_t_epoch,
+        ag_schema.User.t_epoch <= end_t_epoch,
         ag_schema.User.global_user_name == DN,
         ag_schema.User.resolution == resolution))
 
@@ -69,7 +69,7 @@ def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
     """
     
     start_t_epoch = start_t_epoch - (start_t_epoch % resolution) 
-    end_t_epoch =  end_t_epoch - (end_t_epoch % resolution) + resolution - 1
+    end_t_epoch =  end_t_epoch - (end_t_epoch % resolution) + resolution
     
     if resolution == 0:
         log.warn("Got 0 resolution, can't fulfill request.")
@@ -78,7 +78,7 @@ def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
 
     return sgascache_session.Session.query(ag_schema.Machine).filter(and_(
         ag_schema.Machine.t_epoch >= start_t_epoch,
-        ag_schema.Machine.t_epoch < end_t_epoch,
+        ag_schema.Machine.t_epoch <= end_t_epoch,
         ag_schema.Machine.machine_name == hostname,
         ag_schema.Machine.resolution == resolution))
 
