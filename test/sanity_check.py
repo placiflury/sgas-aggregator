@@ -300,7 +300,7 @@ def test_fech_oldest_aggregate(last_aggregation_time_epoch):
 
 if __name__ == '__main__':
     
-    init_config('/opt/smscg/sgas/etc/config.ini')
+    init_config('/opt/smscg/sgasaggregator/etc/config.ini')
     try:
         sgas_engine = engine_from_config(config_parser.config.get(),'sqlalchemy_sgas.')
         dbinit.init_model(sgas_session, sgas_engine)
@@ -366,10 +366,15 @@ if __name__ == '__main__':
     ac_n_jobs_check_sum = 0
     ac_wall_time_check_sum = 0
    
-
+    """
     today_epoch = now_epoch - (now_epoch % resolution)
     start_t_epoch = today_epoch  - 7 * 86400
     end_t_epoch =  today_epoch
+    """
+    # test with non-sampled time
+
+    end_t_epoch = int(time.time())
+    start_t_epoch = start_t_epoch - 40 * 86400 # 40 days back (from now)
     
 
     start_t_utc = datetime.utcfromtimestamp(start_t_epoch)
@@ -384,8 +389,23 @@ if __name__ == '__main__':
             org_wall_time_check_sum += arec.wall_duration
         print arec.start_time, arec.end_time, arec.wall_duration
     
-    print 'and corresponding aggregates'
-    for arec in helpers.get_user_acrecords(DN, start_t_epoch, end_t_epoch, 86400):
+    print 'and corresponding aggregates at 86400 resolution'
+    for arec in helpers.get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
+        print datetime.utcfromtimestamp(arec.t_epoch),  arec.n_jobs, arec.wall_duration        
+        ac_n_jobs_check_sum += arec.n_jobs
+        if arec.wall_duration:
+            ac_wall_time_check_sum += arec.wall_duration
+    
+    print 10 * '=', "CHECKSUMS" , 10 * '='
+    print 'original data:   %d jobs, %0.2f wall_time' % (org_n_jobs_check_sum, org_wall_time_check_sum)
+    print 'aggregated data: %d jobs, %0.2f wall_time' % (ac_n_jobs_check_sum, ac_wall_time_check_sum)
+    
+    print 'and corresponding aggregates at  7 * 86400 resolution'
+    
+    resolution = 7 * 86400
+    ac_n_jobs_check_sum = 0
+    ac_wall_time_check_sum = 0
+    for arec in helpers.get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
         print datetime.utcfromtimestamp(arec.t_epoch),  arec.n_jobs, arec.wall_duration        
         ac_n_jobs_check_sum += arec.n_jobs
         if arec.wall_duration:

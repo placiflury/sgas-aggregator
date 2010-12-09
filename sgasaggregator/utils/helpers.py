@@ -44,9 +44,8 @@ def get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
         end_t_epoch: endint time in epoch
         resolution: resolution of (aggregated) jobs. 
     """
-
-    start_t_epoch += resolution - 1
-    end_t_epoch += resolution - 1
+    start_t_epoch = start_t_epoch - (start_t_epoch % resolution) 
+    end_t_epoch =  end_t_epoch - (end_t_epoch % resolution) + resolution - 1
     
     if resolution == 0:
         log.warn("Got 0 resolution, can't fulfill request.")
@@ -69,8 +68,8 @@ def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
                     the original (non-aggregated) data will be returned
     """
     
-    start_t_epoch += resolution - 1
-    end_t_epoch += resolution - 1
+    start_t_epoch = start_t_epoch - (start_t_epoch % resolution) 
+    end_t_epoch =  end_t_epoch - (end_t_epoch % resolution) + resolution - 1
     
     if resolution == 0:
         log.warn("Got 0 resolution, can't fulfill request.")
