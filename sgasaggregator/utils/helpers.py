@@ -58,11 +58,11 @@ def get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
         log.warn("Got 0 resolution, can't fulfill request.")
         return None
 
-    s_start, s_end = get_time_interval(start_t_epoch, end_t_epoch, resolution)
+    s_start, s_end = get_sampling_interval(start_t_epoch, end_t_epoch, resolution)
 
     return sgascache_session.Session.query(ag_schema.User).filter(and_(
         ag_schema.User.t_epoch >= s_start,
-        ag_schema.User.t_epoch <= s_end,
+        ag_schema.User.t_epoch < s_end,
         ag_schema.User.global_user_name == DN,
         ag_schema.User.resolution == resolution))
 
@@ -82,15 +82,15 @@ def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
         log.warn("Got 0 resolution, can't fulfill request.")
         return None
     
-    s_start, s_end = get_time_interval(start_t_epoch, end_t_epoch, resolution)
+    s_start, s_end = get_sampling_interval(start_t_epoch, end_t_epoch, resolution)
 
     return sgascache_session.Session.query(ag_schema.Machine).filter(and_(
         ag_schema.Machine.t_epoch >= s_start,
-        ag_schema.Machine.t_epoch <= s_end,
+        ag_schema.Machine.t_epoch <  s_end,
         ag_schema.Machine.machine_name == hostname,
         ag_schema.Machine.resolution == resolution))
 
-def get_time_interval(start_t_epoch, end_t_epoch, resolution):
+def get_sampling_interval(start_t_epoch, end_t_epoch, resolution):
     """ The time interval of a *continuous* query must be adapted, so 
         it matches the *discrete* time boundaries (or sampling time 
         boundaries) of the aggregates.
@@ -104,6 +104,6 @@ def get_time_interval(start_t_epoch, end_t_epoch, resolution):
         Returns: sampling_start_t, sampling_end_t
     """
     samp_start_t = start_t_epoch - (start_t_epoch % resolution) 
-    samp_end_t=  end_t_epoch - (end_t_epoch % resolution) + resolution
+    samp_end_t=  end_t_epoch - (end_t_epoch % resolution) + resolution - 1
 
     return samp_start_t, samp_end_t    
