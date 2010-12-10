@@ -415,3 +415,6 @@ if __name__ == '__main__':
     print 'original data:   %d jobs, %0.2f wall_time' % (org_n_jobs_check_sum, org_wall_time_check_sum)
     print 'aggregated data: %d jobs, %0.2f wall_time' % (ac_n_jobs_check_sum, ac_wall_time_check_sum)
 
+    print "Placi's local testing" 
+    t = 1291593600
+    
