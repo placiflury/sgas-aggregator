@@ -62,7 +62,7 @@ def get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
 
     return sgascache_session.Session.query(ag_schema.User).filter(and_(
         ag_schema.User.t_epoch >= s_start,
-        ag_schema.User.t_epoch < s_end,
+        ag_schema.User.t_epoch <= s_end,
         ag_schema.User.global_user_name == DN,
         ag_schema.User.resolution == resolution))
 
@@ -86,7 +86,7 @@ def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
 
     return sgascache_session.Session.query(ag_schema.Machine).filter(and_(
         ag_schema.Machine.t_epoch >= s_start,
-        ag_schema.Machine.t_epoch <  s_end,
+        ag_schema.Machine.t_epoch <=  s_end,
         ag_schema.Machine.machine_name == hostname,
         ag_schema.Machine.resolution == resolution))
 
