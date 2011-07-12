@@ -64,7 +64,7 @@ def get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
         ag_schema.User.t_epoch >= s_start,
         ag_schema.User.t_epoch <= s_end,
         ag_schema.User.global_user_name == DN,
-        ag_schema.User.resolution == resolution))
+        ag_schema.User.resolution == resolution)).order_by(ag_schema.User.t_epoch)
 
 
 def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
@@ -89,6 +89,39 @@ def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
         ag_schema.Machine.t_epoch <=  s_end,
         ag_schema.Machine.machine_name == hostname,
         ag_schema.Machine.resolution == resolution))
+
+def get_vo_acrecords(vo_name, start_t_epoch, end_t_epoch, resolution):
+    """ returns a query object of the jobs or None, upon which 
+        one can iterate.
+        vo_name:  VO name of the 
+        start_t_epoch: starting time in epoch
+        end_t_epoch: endint time in epoch
+        resolution: resolution of (aggregated) jobs. If set to 0 
+                    the original (non-aggregated) data will be returned
+    """
+    if resolution == 0:
+        log.warn("Got 0 resolution, can't fulfill request.")
+        return None
+    
+    s_start, s_end = get_sampling_interval(start_t_epoch, end_t_epoch, resolution)
+
+    return sgascache_session.Session.query(ag_schema.Vo).filter(and_(
+        ag_schema.Vo.t_epoch >= s_start,
+        ag_schema.Vo.t_epoch <=  s_end,
+        ag_schema.Vo.vo_name == vo_name,
+        ag_schema.Vo.resolution == resolution)).order_by(ag_schema.Vo.t_epoch)
+
+
+def get_vo_names():
+    """ returns list of distinct VOs """
+    vos = []
+    for arec in sgascache_session.Session.query(ag_schema.Vo.vo_name).distinct():
+        vo = arec.vo_name
+        vos.append(vo)   # i.e. vo can be  NULL/None
+
+    return vos
+
+
 
 def get_sampling_interval(start_t_epoch, end_t_epoch, resolution):
     """ The time interval of a *continuous* query must be adapted, so 
