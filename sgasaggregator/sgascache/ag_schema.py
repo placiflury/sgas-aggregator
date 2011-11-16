@@ -41,21 +41,26 @@ We have avoided using a table schema that requires 'joins'. Each table keeps the
 the variables that get aggregated.
 
 """
+__author__ = "Placi Flury grid@switch.ch"
+__date__ = "02.08.2010"
+__last_change__ = '24.10.2011' 
+__version__ = "0.1.0"
+
+# last change - adaptation of DB schema to SGAS Luts version 3.5.0 // 24.10.2011
 
 import sqlalchemy as sa
 from sqlalchemy.orm import mapper
-
 from sgasaggregator.sgascache import session as sgascache_session
 
 
 """
 t_value = sa.Table("values", sgascache_session.metadata,
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0
 )
 """
 
@@ -68,11 +73,11 @@ t_user_vo_machine_status = sa.Table("user_vo_machine_status", sgascache_session.
     sa.Column('resolution',         sa.types.INTEGER, autoincrement = False, primary_key = True),
     sa.Column('t_epoch',            sa.types.INTEGER, autoincrement = False, primary_key = True),
     sa.Column('n_jobs',             sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration',       sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration',      sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time',          sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time',        sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults',  sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration',       sa.types.BIGINT, default=0),
+    sa.Column('wall_duration',      sa.types.BIGINT, default=0),
+    sa.Column('user_time',          sa.types.BIGINT, default=0),
+    sa.Column('kernel_time',        sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults',  sa.types.BIGINT, default = 0)
 )
 
 # key_01
@@ -83,11 +88,11 @@ t_user_vo_machine = sa.Table("user_vo_machine", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 #key_02
 t_user_vo_status = sa.Table("user_vo_status", sgascache_session.metadata,
@@ -97,11 +102,11 @@ t_user_vo_status = sa.Table("user_vo_status", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_03
@@ -112,11 +117,11 @@ t_vo_machine_status = sa.Table("vo_machine_status", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_04
@@ -128,11 +133,11 @@ t_user_machine_status = sa.Table("user_machine_status", sgascache_session.metada
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 # key_011
@@ -142,11 +147,11 @@ t_user_vo = sa.Table("user_vo", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 # key_012
@@ -156,11 +161,11 @@ t_user_machine = sa.Table("user_machine", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_021
@@ -170,11 +175,11 @@ t_user_status = sa.Table("user_status", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_031
@@ -184,11 +189,11 @@ t_vo_status = sa.Table("vo_status", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_032
@@ -198,11 +203,11 @@ t_vo_machine = sa.Table("vo_machine", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_041
@@ -212,11 +217,11 @@ t_machine_status = sa.Table("machine_status", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_0211
@@ -225,11 +230,11 @@ t_user = sa.Table("user", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_0311
@@ -238,11 +243,11 @@ t_status = sa.Table("status", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_0321
@@ -251,11 +256,11 @@ t_vo = sa.Table("vo", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 #key_0411
@@ -264,11 +269,11 @@ t_machine = sa.Table("machine", sgascache_session.metadata,
     sa.Column('resolution', sa.types.INTEGER, primary_key = True),
     sa.Column('t_epoch', sa.types.INTEGER, primary_key = True),
     sa.Column('n_jobs', sa.types.INTEGER, default= 0),
-    sa.Column('cpu_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('wall_duration', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('user_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('kernel_time', sa.types.NUMERIC(12,2), default = 0.0),
-    sa.Column('major_page_faults', sa.types.INTEGER, default = 0)
+    sa.Column('cpu_duration', sa.types.BIGINT, default=0),
+    sa.Column('wall_duration', sa.types.BIGINT, default=0),
+    sa.Column('user_time', sa.types.BIGINT, default=0),
+    sa.Column('kernel_time', sa.types.BIGINT, default=0),
+    sa.Column('major_page_faults', sa.types.BIGINT, default = 0)
 )
 
 
