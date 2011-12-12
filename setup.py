@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name = "sgas_aggregator",
-    version = "0.4.0",
+    version = "0.4.1",
     description = "An aggregator of the SGAS accouting records.",
     long_description = """
     This module provides a daemon that aggregates SGAS accounting records

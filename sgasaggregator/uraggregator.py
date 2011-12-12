@@ -2,6 +2,8 @@
 """
 Module for aggregation of SGAS Usage records
 """
+# last modification: bug-fix 12.12.11 PF
+
 import time, logging, calendar
 from datetime import datetime
 
@@ -94,7 +96,7 @@ class UrAggregator(object):
         if not vo_string: # no VO info in SGAS record
             return ''
         
-        if vo_type == 'voms':
+        if vo_type in ['voms','grid-vo-map/vomss']:
             return vo_string
 
         if '.' in vo_string: 

@@ -300,6 +300,7 @@ def test_fech_oldest_aggregate(last_aggregation_time_epoch):
 
 if __name__ == '__main__':
     
+    
     init_config('/opt/smscg/sgasaggregator/etc/config.ini')
     try:
         sgas_engine = engine_from_config(config_parser.config.get(),'sqlalchemy_sgas.')
@@ -418,3 +419,6 @@ if __name__ == '__main__':
     print "Placi's local testing" 
     t = 1291593600
     
+    VO= 'smscg'
+    for arec in helpers.get_vo_acrecords(VO, start_t_epoch, end_t_epoch, resolution):
+        print arec.wall_duration
