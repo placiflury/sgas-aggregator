@@ -90,6 +90,16 @@ def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
         ag_schema.Machine.machine_name == hostname,
         ag_schema.Machine.resolution == resolution))
 
+def get_cluster_names():
+    """ returns list of distinct clusters """
+    clusters = []
+    for arec in sgascache_session.Session.query(ag_schema.Machine.machine_name).distinct():
+        cluster_name  = arec.machine_name
+        if not cluster_name:
+            continue
+        clusters.append(cluster_name)
+    return clusters
+
 def get_vo_acrecords(vo_name, start_t_epoch, end_t_epoch, resolution):
     """ returns a query object of the jobs or None, upon which 
         one can iterate.
