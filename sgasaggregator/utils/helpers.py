@@ -66,6 +66,31 @@ def get_user_acrecords(DN, start_t_epoch, end_t_epoch, resolution):
         ag_schema.User.global_user_name == DN,
         ag_schema.User.resolution == resolution)).order_by(ag_schema.User.t_epoch)
 
+def get_cluster_user_acrecords(hostname, DN, start_t_epoch, end_t_epoch, resolution):
+    """ returns a query object of the jobs or None, upon which 
+        one can iterate.
+        hostname: hostname of the cluster frontend
+        DN: user's certificate DN
+        start_t_epoch: starting time in epoch
+        end_t_epoch: endint time in epoch
+        resolution: resolution of (aggregated) jobs. If set to 0 
+                    the original (non-aggregated) data will be returned
+    """
+    
+ 
+    if resolution == 0:
+        log.warn("Got 0 resolution, can't fulfill request.")
+        return None
+    
+    s_start, s_end = get_sampling_interval(start_t_epoch, end_t_epoch, resolution)
+
+    return sgascache_session.Session.query(ag_schema.UserMachine).filter(and_(
+        ag_schema.UserMachine.t_epoch >= s_start,
+        ag_schema.UserMachine.t_epoch <=  s_end,
+        ag_schema.UserMachine.machine_name == hostname,
+        ag_schema.UserMachine.global_user_name == DN,
+        ag_schema.UserMachine.resolution == resolution))
+
 
 def get_cluster_acrecords(hostname, start_t_epoch, end_t_epoch, resolution):
     """ returns a query object of the jobs or None, upon which 
@@ -120,6 +145,28 @@ def get_vo_acrecords(vo_name, start_t_epoch, end_t_epoch, resolution):
         ag_schema.Vo.t_epoch <=  s_end,
         ag_schema.Vo.vo_name == vo_name,
         ag_schema.Vo.resolution == resolution)).order_by(ag_schema.Vo.t_epoch)
+
+def get_cluster_vo_acrecords(cluster_name, vo_name, start_t_epoch, end_t_epoch, resolution):
+    """ returns a query object of the jobs or None, upon which 
+        one can iterate.
+        vo_name:  VO name of the 
+        start_t_epoch: starting time in epoch
+        end_t_epoch: endint time in epoch
+        resolution: resolution of (aggregated) jobs. If set to 0 
+                    the original (non-aggregated) data will be returned
+    """
+    if resolution == 0:
+        log.warn("Got 0 resolution, can't fulfill request.")
+        return None
+    
+    s_start, s_end = get_sampling_interval(start_t_epoch, end_t_epoch, resolution)
+
+    return sgascache_session.Session.query(ag_schema.VoMachine).filter(and_(
+        ag_schema.VoMachine.t_epoch >= s_start,
+        ag_schema.VoMachine.t_epoch <=  s_end,
+        ag_schema.VoMachine.vo_name == vo_name,
+        ag_schema.VoMachine.machine_name == cluster_name,
+        ag_schema.VoMachine.resolution == resolution)).order_by(ag_schema.VoMachine.t_epoch)
 
 
 def get_vo_names():
