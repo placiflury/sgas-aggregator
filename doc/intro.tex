@@ -1,0 +1,100 @@
+% Author: Placi Flury  grid@switch.ch
+\section{Introduction}
+\label{sec:introduction}
+
+The \emph{ch.smscg.sgas} software package provides a daemon tool, which  pre--processes 
+original SGAS accounting records\footnote{Notice, the ch.smscg.sgas package assumes
+ the SGAS accounting records  are stored in a relational database 
+(i.e. it will not work for couchdb settings).} and stores them into accounting aggregates. These aggregates 
+can later be passed as input to tools that generate usage reports and/or visualize usage patterns (like views for websites). \\
+Each aggregate is  \emph {time} sampled  -- typically into samples of multiples of one day 
+-- and is a composite sum of the properties like \emph{wall\_time, charge, etc.,} discriminated
+by any possible combination of the following key identifiers:  of the  \emph{user} that submitted the jobs, 
+of the  \emph{VO} under which the jobs have been sent, of the  \emph{Computing 
+Elements (CE)} from which jobs were sent,  and of the \emph{job statuses}.  As can be seen in figure~\ref{sgas_aggregates}, 
+the combination of these  properties results in 15 distinct tables. \\
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics [scale=0.8]{figures/sgas_aggregator_tables.pdf}
+\caption{{\bf Different SGAS Aggregates}}
+\label{sgas_aggregates}
+\end{center}
+\end{figure}
+  Each table consists of a constant set of properties (like the number of jobs -- \emph{n\_jobs} --  
+ the \emph{charge} etc. of the aggregate), which we term \textbf{body}, and a set of properties, 
+ which varies for each table and which we term \textbf{key}.\\
+ 
+ The first and only aggregate, which is created from the original SGAS accounting data is described by the table with  \emph{key\_0}. It is the   most specific aggregate, which distinguishes the \emph{user} 
+ (g\_id), the \emph{VO} (vo\_id), the \emph{Computing Element} (m\_id), the \emph{job status}
+  (status), the \emph{sampling rate} (resolution), and the \emph{epoch time} of the aggregated
+   record. Jointly, these six properties uniquely identify the aggregated record (or to put it in database parlance: 
+   they are the primary keys of the relation).\\
+   The aggregates denoted by key\_01 to  key\_04 are all deduced from the key\_0 aggregate 
+   (and not from the original SGAS accounting records anymore.). The key\_01 aggregate on the 
+   contrary becomes the parent for the key\_011 and key\_012 aggregates. The same holds for 
+   key\_02, key\_03, key\_04 etc.. This ' pipelining design' considerably reduces the amount of
+    processing steps.  On the Grid of the SMSCG project, for example, we observed a compression 
+    ratio from the original SGAS accounting data to the key\_0 table by a factor 76\footnote{The number 
+    was computed on about 120k accounting records and under the situation that most jobs came from 
+    very few power users. A more balanced the Grid should achieve better compression rates. }; That is, 
+    the number of records to process for the creation of every subsequent tables has been reduced by at 
+    least a factor 76.\\
+
+The processing pipeline of figure \ref{sgas_aggregates} only depicts the 'vertical' aggregation, that is 
+every depicted aggregate has the same  constant sampling rate (i.e. at a fixed \emph{resolution}).  The 
+daemon tool, however, also aggregates 'horizontally', that is by further sampling the aggregates. For example, 
+an aggregate that was created at a resolution of 1 day, can further be aggregated at resolutions which are 
+multiples of 1 day, typically at  week and month resolutions.  
+  
+  \section{Installation}
+  \label{sec:installation}
+  
+  The \emph{ch.smscg.sgas} package is written in Python. The package has the following requirement:
+  \begin{itemize}
+	\item \begin{verbatim}sqlalchemy  >= 0.6.0\end{verbatim}
+\end{itemize}
+
+\noindent The installation of the package is done by: 
+ \begin{verbatim}
+ 	user$ cd ch.smscg.sgas
+ 	root$ python setup.py install
+ \end{verbatim}
+ 
+ \noindent This will install the package into the python default path and create the following files:
+ \noindent
+  \begin{verbatim}/opt/smscg/sgas/etc/config.ini
+		/opt/smscg/sgas/etc/logging.conf
+		/opt/smscg/sgas/etc/init.d/sgas_aggregator.py
+ \end{verbatim}
+
+\section{Configuration}
+\label{configuration}
+The aggregator daemon has two configuration files.
+The \emph{config. ini}  file is the main configuration file  (default location 
+\emph{/opt/smscg/\-sgas/etc/config.ini}. Its  entries read:
+\begin{description}
+
+\item[sqlalchemy\_sgas.url] This contains the URL to the SGAS database, which keeps the original SGAS accounting data. In the same database the aggregated tables will be created. Example: \emph{sqlalchemy\_sgas.url=postgresql://sgasuser:password\@host:5432/sgas} 
+\item[sqlalchemy\_sgas.pool\_recycle] The frequency for recycling connection pools to database (in seconds). The default value is set to 3600.
+\item[periodicity] This parameter defines the processing interval for the aggregation of the accounting records (i.e. the daemon 
+runs every \emph{periodicity} interval). The unit is seconds. 
+\item[resolution] The base resolution of the aggregated records (or if you prefer the sampling rate). The unit is seconds.
+\item[factors]  A list of numbers by which the  value of the \emph{resolution} parameter will be multiplied. For each of the resulting new resolutions aggregates will be computed. 
+\item[refresh\_days\_back] At \textbf{start--up}, the daemon starts creating aggregates starting from \emph{refresh\_days\_back} (compared to the start--up time). After the first run the daemon only considers  original SGAS accounting records, which were inserted (entry of \emph{insert\_time}) since the daemon's last execution. In more detail,  the daemon looks for the record of the oldest job (in terms of its  \emph{end\_time} value ) and recomputes all aggregates starting from then on. Hence, if a site is publishing  comparably old SGAS accounting records, the aggregates will still be updated correctly. \\
+Beware, if you run the daemon for the very first time on an existing SGAS database, you need to make sure to set the \emph{refresh\_days\_back} value so it creates aggregates starting from the oldest entries of the SGAS database. After having run the daemon once successfully you should set the value back to a small value, as to avoid unnecessary re-computation of the aggregates upon a restart (e.g.  like after a reboot)
+\end{description}
+ The \emph{logging.conf} file is used to configure where to log the output of the daemon and on what log--level.  The configuration of the logger is standard and we thus do not go into it.\\\section{Running the Daemon}
+\label{daemon}
+
+The daemon can either be started and stopped  as root by 
+
+\begin{verbatim}root$ /opt/smscg/sgas/etc/init.d/sgas_aggregator.py start
+	root$ /opt/smscg/sgas/etc/init.d/sgas_aggregator.py stop
+ \end{verbatim}
+ 
+ You may also create a symlink to /etc/init.d and add it to the startup scripts of your system (e.g. by update-rc.d or chkconfig)
+
+
+
+
+ 
